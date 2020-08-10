@@ -11,11 +11,12 @@ tmp <- tempfile(fileext=".tar.gz")
 download.file(file.path("https://github.com", location, "tarball/master"), tmp)
 
 target <- "vignettes/book"
-tmp2 <- tempfile()
+tmp2 <- tempfile(tmpdir="vignettes")
 untar(tmp, exdir=tmp2)
 
 unlink(target, recursive=TRUE)
 file.rename(list.files(tmp2, full.names=TRUE)[1], target)
+unlink(tmp2, recursive=TRUE)
 
 ##########################################################
 ############### Updating dependencies ####################
