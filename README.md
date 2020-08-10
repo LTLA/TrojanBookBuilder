@@ -22,7 +22,15 @@ The version and date are also bumped if there were any changes in the trojan's c
 
 ## Deployment
 
-This action should be used in a scheduled GHA workflow in the trojan repository.
+This action should be used in a scheduled GHA workflow in the trojan repository:
+
+```
+      - name: Transplant book contents
+        uses: LTLA/TrojanBookBuilder@master
+        with:
+          book: Bioconductor/OrchestratingSingleCellAnalysis
+```
+
 It should be used after [`checkout`](https://github.com/actions/checkout) whereupon it will make changes to the workspace;
 such changes can be committed with [`create-pull-request`](https://github.com/marketplace/actions/create-pull-request).
 
