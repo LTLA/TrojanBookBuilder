@@ -45,19 +45,19 @@ for (i in c("Depends", "Imports", "Suggests")) {
 
     everything <- sort(unique(everything))
     if (length(everything)) {
-        everything <- paste0(everything, collapse=",\n")
-        if (i %in% troj.desc) {
+        everything <- paste0(everything, collapse=",\n  ")
+        if (i %in% colnames(troj.desc)) {
             troj.desc[,i] <- everything
         } else {
             extra <- matrix(everything, ncol=1, dimnames=list(NULL, i))
             troj.desc <- cbind(troj.desc, extra) 
         }
-    } else if (i %in% troj.desc) {
+    } else if (i %in% colnames(troj.desc)) {
         troj.desc <- troj.desc[,colnames(troj.desc)!=i,drop=FALSE]
     }
 }
 
-write.dcf(troj.desc, "DESCRIPTION", indent=2, keep.white=colnames(troj.desc))
+write.dcf(troj.desc, "DESCRIPTION", keep.white=colnames(troj.desc))
 
 ##########################################################
 ############# Inserting the trojan make ##################
@@ -92,6 +92,6 @@ if (any(lengths(changes) > 0)) {
     V <- package_version(troj.desc[,"Version"])
     V[1,3] <- as.integer(V[1,3]) + 1
     troj.desc[,"Version"] <- as.character(V)
-    troj.desc[,"Date"] <- Sys.Date()
-    write.dcf(troj.desc, "DESCRIPTION", indent=2, keep.white=colnames(troj.desc))
+    troj.desc[,"Date"] <- as.character(Sys.Date())
+    write.dcf(troj.desc, "DESCRIPTION", keep.white=colnames(troj.desc))
 }
