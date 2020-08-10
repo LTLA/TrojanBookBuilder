@@ -4,4 +4,4 @@ RUN R --quiet -e "options(warn=2); BiocManager::install('git2r')"
 
 COPY transplant.R /
 
-ENTRYPOINT ["Rscript", "/transplant.R", "--args"]
+ENTRYPOINT ["Rscript", "/transplant.R"]
