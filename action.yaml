@@ -1,0 +1,12 @@
+name: Trojan Book Builder
+author: Aaron Lun
+description: Create a trojan package to sneak books onto the Bioconductor build system.
+inputs:
+  book:
+    description: 'Full name of the GitHub repository containing the book, e.g., Bioconductor/OrchestratingSingleCellAnalysis.'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.book }}
