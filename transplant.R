@@ -27,8 +27,9 @@ troj.desc <- read.dcf("DESCRIPTION")
 troj.desc <- read.dcf("DESCRIPTION", keep.white=colnames(troj.desc))
 
 .clean <- function(x) {
-    x <- sub("^[\n\\s]*", "", x)
-    x <- sub("[\n\\s]*$", "", x)
+    # For some reason, \s doesn't work inside [].
+    x <- sub("^[\n\t ]*", "", x)
+    x <- sub("[\n\t ]*$", "", x)
     strsplit(x, ",\n?\\s*")[[1]]
 }
 
