@@ -7,12 +7,18 @@ To use it, you will need:
 
 - A GitHub repository containing a **bookdown** book, compilable by running `bookdown::render_book` in its top-level directory.
 This should have a `DESCRIPTION` file describing all the necessary dependencies.
-- A GitHub repository containing the trojan R package, minimally containing a `DESCRIPTION` and `vignettes/` subdirectory.
-This usually also has `Workflow: True` set to indicate that it should be subjected to workflow builds.
+- A GitHub repository containing the trojan R package, following the Bioconductor requirements for a workflow package.
+Non-book dependencies should be listed in `OriginalDepends:`, `OriginalImports:` or `OriginalSuggests:`.
 
-This action will then "transplant" the book contents into the `vignettes/` subdirectory of the trojan,
-allowing the latter to be built on the BBS as if it were a regular workflow package.
+## Effects
+
+This action will "transplant" the book contents into the `vignettes/` subdirectory of the trojan.
+Combined with appropriate `Makefile` instructions, this can trick the BBS into compiling the book along with the usual vignettes.
 The subsequent tarball will contain the compiled book for downloading and posting online.
+
+The book's dependencies are added to the trojan's `DESCRIPTION` so that the correct packages are available.
+Note that this will wipe any existing dependencies, so anything important should instead be listed in the `Original*` fields.
+The version and date are also bumped if there were any changes in the trojan's contents due to these actions.
 
 ## Deployment
 
