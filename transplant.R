@@ -8,7 +8,7 @@
 
 location <- commandArgs(trailing=TRUE)
 tmp <- tempfile(fileext=".tar.gz")
-download.file(file.path("https://github.com", location, "tarball/master"), tmp)
+download.file(file.path("https://github.com", location[1], "tarball", location[2]), tmp)
 
 target <- "vignettes/book"
 tmp2 <- tempfile(tmpdir="vignettes")

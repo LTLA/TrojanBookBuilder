@@ -5,8 +5,13 @@ inputs:
   book:
     description: 'Full name of the GitHub repository containing the book, e.g., Bioconductor/OrchestratingSingleCellAnalysis.'
     required: true
+  branch:
+    description: 'Name of the branch to use. Defaults to master.'
+    required: false
+    default: "master"
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
     - ${{ inputs.book }}
+    - ${{ inputs.branch }}
