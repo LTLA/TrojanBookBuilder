@@ -46,6 +46,8 @@ for (i in c("Depends", "Imports", "Suggests")) {
     }
 
     everything <- sort(unique(everything))
+    everything <- setdiff(everything, "rebook") # until this gets onto Bioconductor.
+	
     if (length(everything)) {
         everything <- paste0(everything, collapse=",\n  ")
         if (i %in% colnames(troj.desc)) {
