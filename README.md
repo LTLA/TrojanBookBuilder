@@ -32,7 +32,7 @@ This action should be used in a scheduled GHA workflow in the trojan repository:
 ```
 
 It should be used after [`checkout`](https://github.com/actions/checkout) whereupon it will make changes to the workspace;
-such changes can be committed with [`create-pull-request`](https://github.com/peter-evans/create-pull-request).
-
-The maintainer is then in charge of merging this into the `master` and pushing it to Bioconductor Git servers.
-Unfortunately, I haven't figured out a way of automatically doing that last step.
+such changes can be committed with a subsequent `git add -A` step.
+An additional step can then be used to push changes to the Bioconductor Git servers, 
+given a secret containing an appropriate private key.
+Readers are referred to the GitHub Action at https://github.com/LTLA/OrchestratingSingleCellAnalysisBook as a working example.
