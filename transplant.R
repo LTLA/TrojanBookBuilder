@@ -70,13 +70,6 @@ if (!"VignetteBuilder" %in% colnames(book.desc)) {
     book.desc <- cbind(book.desc, VignetteBuilder="knitr")
 }
 
-# Humor R CMD build, as bookdown creates RDS files.
-if ("Depends" %in% colnames(book.desc)) {
-    book.desc[,"Depends"] <- paste0("R (>= 4.0), ", book.desc[,"Depends"])
-} else {
-    book.desc <- cbind(book.desc, Depends="R (>= 4.0)")
-}
-
 write.dcf(book.desc, "DESCRIPTION", keep.white=colnames(book.desc))
 unlink(bpath)
 
@@ -88,12 +81,10 @@ write('all: compiled
 
 compiled: 
 	cd book && "${R_HOME}/bin/R" -e "bookdown::render_book(\'index.Rmd\')"
-	rm -rf book/_bookdown_files
-	find book/ -maxdepth 1 -type f -delete
+	mv book/docs TEMPORARY
+	rm -rf book/ && mkdir book/ && mv TEMPORARY book/docs
 	mkdir -p ../inst && cp -r book/docs ../inst/
-
-clean: 
-	rm -rf book/*_cache book/*_files',
+',
     file="vignettes/Makefile")
 
 ##########################################################
