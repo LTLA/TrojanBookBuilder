@@ -24,6 +24,7 @@ file.rename(list.files(tmp2, full.names=TRUE)[1], target)
 unlink(tmp2, recursive=TRUE)
 
 unlink(file.path(target, "README.md"))
+unlink(file.path(target, ".github"), recursive=TRUE)
 
 ##########################################################
 ############### Updating DESCRIPTION #####################
