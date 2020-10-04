@@ -45,6 +45,7 @@ book.desc <- read.dcf(bpath, keep.white=colnames(book.desc))
 book.desc[,"Version"] <- VERSION
 book.desc[,"Date"] <- DATE
 
+original.name <- book.desc[,"Package"]
 if (name!="*") {
     book.desc[,"Package"] <- name
 }
@@ -87,11 +88,12 @@ write('all: compiled
 
 compiled: 
 	cd book && "${R_HOME}/bin/R" -e "bookdown::render_book(\'index.Rmd\')"
-	rm -rf book/_bookdown_files/
-	mkdir -p ../inst && mv book/docs ../inst/
+	rm -rf book/_bookdown_files
+	find book/ -maxdepth 1 -type f -delete
+	mkdir -p ../inst && cp -r book/docs ../inst/
 
 clean: 
-	rm -rf *_cache *_files',
+	rm -rf book/*_cache book/*_files',
     file="vignettes/Makefile")
 
 ##########################################################
@@ -116,7 +118,7 @@ output:
 ---
 
 Source code for this book can be found at https://github.com/%s.
-", book.desc[,'Package'], book.desc[,'Package'], book))
+", original.name, book.desc[,'Package'], book))
 
 ##########################################################
 ############# Checking for version bump ##################
