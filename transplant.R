@@ -6,6 +6,7 @@ args <- commandArgs(trailing=TRUE)
 book <- args[1]
 branch <- args[2]
 biocViews <- args[3]
+name <- args[4]
 
 ##########################################################
 ################ Downloading the file ####################
@@ -28,13 +29,24 @@ unlink(file.path(target, "README.md"))
 ############### Updating DESCRIPTION #####################
 ##########################################################
 
-troj.desc <- read.dcf("DESCRIPTION")
+if (file.exists("DESCRIPTION")) {
+    troj.desc <- read.dcf("DESCRIPTION")
+    VERSION <- troj.desc[,"Version"]
+    DATE <- troj.desc[,"Date"]
+} else {
+    VERSION <- "0.99.0"
+    DATE <- as.character(Sys.date())
+}
 
 bpath <- file.path(target, "DESCRIPTION")
 book.desc <- read.dcf(bpath)
 book.desc <- read.dcf(bpath, keep.white=colnames(book.desc))
-book.desc[,"Version"] <- troj.desc[,"Version"]
-book.desc[,"Date"] <- troj.desc[,"Date"]
+book.desc[,"Version"] <- VERSION
+book.desc[,"Date"] <- DATE
+
+if (name!="*") {
+    book.desc[,"Package"] <- name
+}
 
 provided <- strsplit(biocViews, split=",")[[1]]
 if ("biocViews" %in% colnames(book.desc)) {
@@ -80,6 +92,30 @@ compiled:
 clean: 
 	rm -rf *_cache *_files',
     file="vignettes/Makefile")
+
+##########################################################
+############### Creating a stub file #####################
+##########################################################
+
+# Need this for R CMD build to recognize that there are even
+# vignettes to be compiled via a separate Makefile.
+write(file="vignettes/stub.Rmd", 
+    sprintf("---
+title: Source code for %s
+package: %s
+date: \"`r Sys.Date()`\"
+vignette: >
+  %%\\VignetteIndexEntry{Source code}
+  %%\\VignetteEngine{knitr::rmarkdown}
+  %%\\VignetteEncoding{UTF-8}    
+output: 
+  BiocStyle::html_document:
+    titlecaps: false
+    toc: false
+---
+
+Source code for this book can be found at https://github.com/%s.
+", book.desc[,'Package'], book.desc[,'Package'], book))
 
 ##########################################################
 ############# Checking for version bump ##################

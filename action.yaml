@@ -3,16 +3,20 @@ author: Aaron Lun
 description: Create a trojan package to sneak books onto the Bioconductor build system.
 inputs:
   book:
-    description: 'Full name of the GitHub repository containing the book, e.g., Bioconductor/OrchestratingSingleCellAnalysis.'
+    description: 'Full name of the GitHub repository containing the book source, e.g., Bioconductor/OrchestratingSingleCellAnalysis.'
     required: true
   branch:
-    description: 'Name of the branch to use. Defaults to master.'
+    description: 'Name of the branch to use in the source repository. Defaults to master.'
     required: false
     default: "master"
   biocViews:
-    description: 'Comma-seperated terms to use in the biocViews field.'
+    description: 'Comma-seperated terms to use in the biocViews field. This should include Workflow.'
     required: false
     default: "Workflow"
+  name:
+    description: 'Name of the trojan package, if it is to be different from that in the DESCRIPTION file of the book source.'
+    required: false
+    default: "*"
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -20,3 +24,4 @@ runs:
     - ${{ inputs.book }}
     - ${{ inputs.branch }}
     - ${{ inputs.biocViews }}
+    - ${{ inputs.name }}
