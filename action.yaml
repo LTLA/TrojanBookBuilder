@@ -9,9 +9,14 @@ inputs:
     description: 'Name of the branch to use. Defaults to master.'
     required: false
     default: "master"
+  biocViews:
+    description: 'Comma-seperated terms to use in the biocViews field.'
+    required: false
+    default: "Workflow"
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
     - ${{ inputs.book }}
     - ${{ inputs.branch }}
+    - ${{ inputs.biocViews }}

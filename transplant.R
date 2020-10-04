@@ -2,13 +2,17 @@
 # into the latter's vignettes/. It will then check if there is anything to
 # commit, and if so, it will bump the version and date of the trojan. 
 
+args <- commandArgs(trailing=TRUE)
+book <- args[1]
+branch <- args[2]
+biocViews <- args[3]
+
 ##########################################################
 ################ Downloading the file ####################
 ##########################################################
 
-location <- commandArgs(trailing=TRUE)
 tmp <- tempfile(fileext=".tar.gz")
-download.file(file.path("https://github.com", location[1], "tarball", location[2]), tmp)
+download.file(file.path("https://github.com", book, "tarball", branch), tmp)
 
 target <- "vignettes/book"
 tmp2 <- tempfile(tmpdir="vignettes")
@@ -18,48 +22,49 @@ unlink(target, recursive=TRUE)
 file.rename(list.files(tmp2, full.names=TRUE)[1], target)
 unlink(tmp2, recursive=TRUE)
 
+unlink(file.path(target, "README.md"))
+
 ##########################################################
-############### Updating dependencies ####################
+############### Updating DESCRIPTION #####################
 ##########################################################
 
-book.desc <- read.dcf(file.path(target, "DESCRIPTION"))
 troj.desc <- read.dcf("DESCRIPTION")
-troj.desc <- read.dcf("DESCRIPTION", keep.white=colnames(troj.desc))
 
-.clean <- function(x) {
-    # For some reason, \s doesn't work inside [].
-    x <- sub("^[\n\t ]*", "", x)
-    x <- sub("[\n\t ]*$", "", x)
-    strsplit(x, ",\n?\\s*")[[1]]
+bpath <- file.path(target, "DESCRIPTION")
+book.desc <- read.dcf(bpath)
+book.desc <- read.dcf(bpath, keep.white=colnames(book.desc))
+book.desc[,"Version"] <- troj.desc[,"Version"]
+book.desc[,"Date"] <- troj.desc[,"Date"]
+
+provided <- strsplit(biocViews, split=",")[[1]]
+if ("biocViews" %in% colnames(book.desc)) {
+    existing <- strsplit(book.desc[,"biocViews"], split=",")[[1]]
+    book.desc[,"biocViews"] <- paste(union(provided, existing), collapse=", ")
+} else {
+    book.desc <- cbind(book.desc, biocViews=paste(provided, collapse=", "))
 }
 
-for (i in c("Depends", "Imports", "Suggests")) {
-    everything <- character(0)
-
-    o <- paste0("Original", i)
-    if (o %in% colnames(troj.desc)) {
-        everything <- c(everything, .clean(troj.desc[,o]))
-    }
-
-    if (i %in% colnames(book.desc)) {
-        everything <- c(everything, .clean(book.desc[,i]))
-    }
-
-    everything <- sort(unique(everything))
-    if (length(everything)) {
-        everything <- paste0(everything, collapse=",\n  ")
-        if (i %in% colnames(troj.desc)) {
-            troj.desc[,i] <- everything
-        } else {
-            extra <- matrix(everything, ncol=1, dimnames=list(NULL, i))
-            troj.desc <- cbind(troj.desc, extra) 
-        }
-    } else if (i %in% colnames(troj.desc)) {
-        troj.desc <- troj.desc[,colnames(troj.desc)!=i,drop=FALSE]
-    }
+# Not sure if this is still needed?
+if ("Workflow" %in% colnames(book.desc)) {
+    book.desc[,"Workflow"] <- "True"
+} else {
+    book.desc <- cbind(book.desc, Workflow="True")
 }
 
-write.dcf(troj.desc, "DESCRIPTION", keep.white=colnames(troj.desc))
+# Adding the VignetteBuilder, otherwise the Makefile doesn't get run.
+if (!"VignetteBuilder" %in% colnames(book.desc)) {
+    book.desc <- cbind(book.desc, VignetteBuilder="knitr")
+}
+
+# Humor R CMD build, as bookdown creates RDS files.
+if ("Depends" %in% colnames(book.desc)) {
+    book.desc[,"Depends"] <- paste0("R (>= 4.0), ", book.desc[,"Depends"])
+} else {
+    book.desc <- cbind(book.desc, Depends="R (>= 4.0)")
+}
+
+write.dcf(book.desc, "DESCRIPTION", keep.white=colnames(book.desc))
+unlink(bpath)
 
 ##########################################################
 ############# Inserting the trojan make ##################
@@ -68,8 +73,9 @@ write.dcf(troj.desc, "DESCRIPTION", keep.white=colnames(troj.desc))
 write('all: compiled
 
 compiled: 
-	cd book && ${R_HOME}/bin/R -e "bookdown::render_book(\'index.Rmd\')"
+	cd book && "${R_HOME}/bin/R" -e "bookdown::render_book(\'index.Rmd\')"
 	rm -rf book/_bookdown_files/
+	mkdir -p ../inst && mv book/docs ../inst/
 
 clean: 
 	rm -rf *_cache *_files',
